@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onClick(String symbol, String history) {
         Timber.d("Symbol clicked: %s", symbol);
+        // Sending data to DetailActivity.
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra(getResources().getString(R.string.intent_symbol), symbol);
         intent.putExtra(getResources().getString(R.string.intent_history), history);
