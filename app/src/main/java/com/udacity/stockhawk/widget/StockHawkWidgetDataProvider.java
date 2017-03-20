@@ -1,27 +1,22 @@
 package com.udacity.stockhawk.widget;
 
-
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.Loader;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.udacity.stockhawk.R;
-import com.udacity.stockhawk.data.Contract;
+import com.udacity.stockhawk.data.Stock;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
 
-public class StockHawkWidgetDataProvider implements RemoteViewsService.RemoteViewsFactory, LoaderManager.LoaderCallbacks<Cursor>{
+public class StockHawkWidgetDataProvider implements RemoteViewsService.RemoteViewsFactory{
 
-    private List<String> collection = new ArrayList<>();
+    private List<Stock> collection = new ArrayList<>();
     private Context context;
     private Intent intent;
     private Cursor cursor;
@@ -32,33 +27,59 @@ public class StockHawkWidgetDataProvider implements RemoteViewsService.RemoteVie
         this.cursor = cursor;
     }
 
+    private void initializeData(){
+        while(cursor.moveToNext()){
+            Stock stock = new Stock(
+                    cursor.getString(0),
+                    cursor.getString(1),
+                    cursor.getString(2));
+
+            collection.add(stock);
+        }
+    }
+
     @Override
     public void onCreate() {
-
+        initializeData();
     }
 
     @Override
     public void onDataSetChanged() {
-
+        initializeData();
     }
 
     @Override
     public void onDestroy() {
-
+        collection.clear();
     }
 
     @Override
     public int getCount() {
-        return collection.size();
+        return cursor.getCount();
     }
 
     @Override
     public RemoteViews getViewAt(int position) {
         final RemoteViews remoteView = new RemoteViews(
                 context.getPackageName(),
-                android.R.layout.simple_list_item_1);
-        remoteView.setTextViewText(android.R.id.text1, collection.get(position));
-        remoteView.setTextColor(android.R.id.text1, ContextCompat.getColor(context, R.color.white));
+                R.layout.widget_list_item);
+
+        Stock stock = collection.get(position);
+
+        remoteView.setTextViewText(R.id.widget_tv_name, stock.getSymbolName());
+        remoteView.setTextViewText(R.id.widget_tv_price, "$" + stock.getStockPrice());
+
+        float stockChange = Float.valueOf(stock.getStockChange());
+
+        if (stockChange > 0) {
+            remoteView.setTextColor(R.id.widget_tv_price_change, ContextCompat.getColor(context, R.color.material_green_700));
+        } else {
+            remoteView.setTextColor(R.id.widget_tv_price_change, ContextCompat.getColor(context, R.color.material_red_700));
+        }
+
+        remoteView.setTextViewText(R.id.widget_tv_price_change, "(" + stock.getStockChange() + ")");
+
+
         return remoteView;
     }
 
@@ -82,18 +103,4 @@ public class StockHawkWidgetDataProvider implements RemoteViewsService.RemoteVie
         return true;
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
 }

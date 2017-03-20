@@ -22,13 +22,7 @@ public class StockHawkWidgetService extends RemoteViewsService{
                 STOCKHAWK_COLUMNS,
                 null,
                 null,
-                Contract.Quote.COLUMN_PRICE + " ASC");
-
-        if (data == null) {
-            Timber.d("DATA JE NULL");
-        } else {
-            Timber.d("DATA NI NULL");
-        }
+                Contract.Quote.COLUMN_PRICE + " DESC");
 
         return new StockHawkWidgetDataProvider(this.getApplicationContext(), intent, data);
     }
