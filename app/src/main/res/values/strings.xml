@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name" translatable="false">Stock Hawk</string>
 
+    <string name="label_price_history">Price History</string>
+
     <string name="pref_stocks_initialized_key" translatable="false">initialized</string>
 
     <string name="pref_stocks_key" translatable="false">stocks</string>
@@ -42,7 +44,8 @@
     <string name="dummy_stock_name" translatable="false">GOOG</string>
     <string name="dummy_stock_price" translatable="false">1000.00</string>
     <string name="dummy_stock_percentage" translatable="false">100%</string>
-    <string name="appwidget_text">EXAMPLE</string>
+
+    <!-- WIDGET -->
     <string name="add_widget">Add widget</string>
 
 </resources>

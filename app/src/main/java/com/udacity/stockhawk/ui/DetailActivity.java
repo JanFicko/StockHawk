@@ -8,6 +8,10 @@ import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -41,59 +45,57 @@ public class DetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         Intent intent = getIntent();
+        List<String[]> stockData = new ArrayList<>();
+        List<Entry> entries = new ArrayList<Entry>();
 
         if(intent.hasExtra(getResources().getString(R.string.intent_symbol)) && intent.hasExtra(getResources().getString(R.string.intent_history))){
             mTextViewStockName.setText(intent.getStringExtra(getResources().getString(R.string.intent_symbol)));
             mColumnHistory = intent.getStringExtra(getResources().getString(R.string.intent_history));
-            Timber.d("COLUMN_HISTORY: %s", mColumnHistory);
-            splitMillisecondsAndPrice(mColumnHistory);
+            stockData = splitMillisecondsAndPrice(mColumnHistory);
         }
 
-        List<Entry> entries = new ArrayList<Entry>();
 
-        for (int i=0; i<10; i++) {
+        if(stockData != null){
+            int counter = (stockData.size() - 1);
+            for(int i=0; i < stockData.size(); i++){
+                float price = Float.valueOf(String.valueOf(Math.round(Float.valueOf(stockData.get(counter)[1]) * 100.0) / 100.0));
+                long milliseconds = Long.valueOf(stockData.get(counter)[0]);
 
-            // turn your data into Entry objects
-            entries.add(new Entry(i, i));
+                entries.add(new Entry(i, price));
+                counter--;
+            }
         }
 
-        LineDataSet dataSet = new LineDataSet(entries, "Day");
-        dataSet.setColor(ContextCompat.getColor(this, R.color.colorAccent));
+        LineDataSet dataSet = new LineDataSet(entries, getResources().getString(R.string.label_price_history));
+        dataSet.setColors(ContextCompat.getColor(this, R.color.colorAccent));
         dataSet.setValueTextColor(ContextCompat.getColor(this, R.color.white));
+        dataSet.setValueTextSize(getResources().getDimension(R.dimen.text_size_extra_small));
+
+        Legend legend = mChart.getLegend();
+        legend.setTextColor(ContextCompat.getColor(this, R.color.white));
+        legend.setTextSize(getResources().getDimension(R.dimen.text_size_tiny));
+
+        YAxis leftAxis = mChart.getAxisLeft();
+        leftAxis.setTextColor(ContextCompat.getColor(this, R.color.white));
+        leftAxis.setTextSize(getResources().getDimension(R.dimen.text_size_tiny));
+
+        YAxis rightAxis = mChart.getAxisRight();
+        rightAxis.setTextColor(ContextCompat.getColor(this, R.color.white));
+        rightAxis.setTextSize(getResources().getDimension(R.dimen.text_size_tiny));
+
+        XAxis xAxis = mChart.getXAxis();
+        xAxis.setEnabled(false);
+
+        Description description = mChart.getDescription();
+        description.setText("");
 
 
         LineData lineData = new LineData(dataSet);
         mChart.setData(lineData);
         mChart.invalidate();
-
-
     }
 
-    private int millisecondsToDay(long milliseconds){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(milliseconds);
-
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        return day;
-    }
-
-    private void splitMillisecondsAndPrice(String input){
-        /*String temp = "input";
-        String parts[] = temp.split("\n");
-        ArrayList<String> listItems = new ArrayList<String>();
-
-        for (int i = 0; i < parts.length; i =i+2) {
-            listItems.add(parts[i]+", "+parts[i+1]);
-
-        }
-             *//*Below loop is just to verify if your list contains correct items, Printing logs*//*
-        for (int i = 0; i < listItems.size(); i++) {
-
-            Timber.d("item = %s", listItems.get(i));
-        }*/
-
-
-
+    private List<String[]> splitMillisecondsAndPrice(String input){
         List<String[]> output = new ArrayList<>();
         List<String> tempSplit = new ArrayList<>();
         if(input.contains(",")){
@@ -104,12 +106,7 @@ public class DetailActivity extends AppCompatActivity {
             output.add(tempSplit.get(i).split(", "));
         }
 
-        for(int j=0; j<output.size(); j++){
-            double price = Math.round(Double.valueOf(output.get(j)[1]) * 100.0) / 100.0;
-            Timber.d("Milliseconds: " + String.valueOf(Long.valueOf(output.get(j)[0])) + " Price: " + price);
-        }
-
-
+        return output;
     }
 
 
